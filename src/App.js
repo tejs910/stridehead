@@ -1,24 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
+import Card from "./components/ContainerCard";
 
 function App() {
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(null);
+  useEffect(() => {
+    setIsLoading(true);
+    fetch("https://jsonplaceholder.typicode.com/users/")
+      .then(async (response) => {
+        const data = await response.json();
+        console.log(data);
+        if (!response.ok) {
+          return Promise.reject();
+        }
+        console.log("it's", data);
+        setUsers(data);
+      })
+      .catch((error) => {
+        setIsError("An Error Occured please try after some time");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {isLoading && <div className="centered">Loading...</div>}
+      {isError !== null && <div className="centered">Error... {isError}</div>}
+      {!isLoading && isError === null && <Card user={users} />}
+    </>
   );
 }
 
